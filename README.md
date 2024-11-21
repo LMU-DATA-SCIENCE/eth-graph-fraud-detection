@@ -4,7 +4,7 @@
 
 This paper discusses an attack scenario that infers identity in a blockchain-based smart healthcare system. There is a privacy vulnerability because blockchain data is open to all participants. Invasion of privacy is a significant problem in a blockchain-based smart healthcare system that utilizes personal information. We analyze the blockchain graph to infer a user’s identity. Then, we construct account-transaction graphs using transactions on the blockchain. A graph embedding algorithm generates features of account-transaction graphs. The generated features are used to identify blockchain participants using machine learning algorithms. We evaluate our attack scenario by applying embedding algorithms in Ethereum. The results showed an inference performance of up to 0.94 in the f1-score.
 
-![overview](overall.png)
+![overview](viz/overall.png)
 
 ### Requirements
 
