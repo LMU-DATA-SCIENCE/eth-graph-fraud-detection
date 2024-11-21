@@ -14,6 +14,8 @@ from joblib import Parallel, delayed
 import os
 from tqdm import tqdm
 import warnings
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Suppress urllib3 warnings
 warnings.filterwarnings(
@@ -76,7 +78,7 @@ def train_and_evaluate(order, embedding_model, classifier_name):
     else:
         raise ValueError("Unsupported classifier.")
 
-    # Train and predict
+    # Train on training data and predict
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
@@ -92,14 +94,69 @@ def train_and_evaluate(order, embedding_model, classifier_name):
         "Recall": recall_score(y_test, y_pred),
     }
 
-    # Save the trained model
+    # Save the trained model (only from training data)
     model_filename = f"models/{order}_{embedding_model}_{classifier_name}.joblib"
     os.makedirs("models", exist_ok=True)
     pickle.dump(clf, open(model_filename, "wb"))
 
-    print(f"run completed for {order}_{embedding_model}_{classifier_name}")
+    print(f"Evaluation completed for {order}_{embedding_model}_{classifier_name}")
 
-    return metrics, model_filename
+    # Retrain the model on the full dataset (entire graph data)
+    clf.fit(embeddings, labels)
+    
+    # Save the retrained model under the 'model/' directory
+    retrained_model_filename = f"model/{order}_{embedding_model}_{classifier_name}_retrained.joblib"
+    os.makedirs("model", exist_ok=True)
+    pickle.dump(clf, open(retrained_model_filename, "wb"))
+
+    print(f"Retrained model saved to {retrained_model_filename}")
+
+    return metrics, retrained_model_filename
+
+
+def visualize_results(metrics_df):
+    """Visualize the results as subplots for each metric in two columns."""
+    metrics = ["Accuracy", "AUC", "F1", "Precision", "Recall"]
+    
+    # Melt the DataFrame for easier plotting
+    metrics_df_melted = metrics_df.melt(id_vars=["Order", "Embedding", "Classifier"], value_vars=metrics, 
+                                        var_name="Metric", value_name="Value")
+
+    # Set up the figure with subplots in 2 columns
+    n_metrics = len(metrics)
+    n_cols = 2
+    n_rows = (n_metrics + 1) // n_cols  # Calculate rows needed for 2 columns
+
+    # Create subplots
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(12, 3 * n_rows))
+    
+    # Flatten axes for easy iteration, in case it's a 2D array
+    axes = axes.flatten()
+
+    # Plot each metric in a separate subplot
+    for i, metric in enumerate(metrics):
+        ax = axes[i]
+        
+        # Filter data for the current metric
+        metric_data = metrics_df_melted[metrics_df_melted["Metric"] == metric]
+        
+        # Create a barplot
+        sns.barplot(data=metric_data, x="Classifier", y="Value", hue="Embedding", ax=ax, ci=None)
+
+        # Set title and labels
+        ax.set_title(f"{metric} by Hyperparameter Configuration")
+        ax.set_xlabel("Classifier")
+        ax.set_ylabel("Value")
+    
+    # Adjust layout for better spacing
+    plt.tight_layout()
+
+    # Save and show the plot
+    os.makedirs("viz", exist_ok=True)
+    plot_filename = "viz/evaluation_results_subplots_2cols.png"
+    plt.savefig(plot_filename)
+    plt.show()
+    print(f"Plot saved to {plot_filename}")
 
 
 def main():
@@ -126,6 +183,9 @@ def main():
     # Save evaluation table
     metrics_df = pd.DataFrame(metrics_list)
     metrics_df.to_csv("results/evaluation_table.csv", index=False)
+
+    # Visualize the results
+    visualize_results(metrics_df)
 
     print("All models trained and evaluated. Results saved to 'results/evaluation_table.csv'.")
 
