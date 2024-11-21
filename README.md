@@ -53,12 +53,12 @@ In the data/eth_transactions path, you need four folders of Second-order Transac
 The following commands classify phishing nodes on Ethereum with Feather-G and RandomForest.
 
 ```
-$ python Identity_Inference.py
+$ python main.py
 ```
 
 The following commands classify phishing nodes on Ethereum with Graph2Vec with SVM.
 
 ```
-$ python Identity_Inference.py --graph first --embedding Graph2Vec --classifier SVM
+$ python main.py --graph "first" --embedding "Graph2Vec" --classifier "SVM"
 ```
 
