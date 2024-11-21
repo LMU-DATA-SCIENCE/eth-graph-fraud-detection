@@ -44,14 +44,20 @@ def fetch_transactions(wallet_address, output_csv="transactions.csv", start_bloc
               
             # Convert 'value' from wei to Ether safely
             df["value"] = df["value"].astype(float) / 1e18  # Convert to numeric after dividing
-            
+
+            # Create a new dataframe with the required columns
+            df_transformed = df[['hash', 'blockNumber', 'timeStamp', 'from', 'to', 'value', 'contractAddress', 'input', 'isError']].copy()
+
+            # Rename columns to match the second format
+            df_transformed.columns = ['TxHash', 'BlockHeight', 'TimeStamp', 'From', 'To', 'Value', 'ContractAddress', 'Input', 'isError']
+        
             # Filter out transactions with value 0   
-            df_filtered = df[df["value"] > 0]
+            df_filtered = df_transformed[df_transformed["Value"] > 0]
             
             print(f"{len(df_filtered)} transactions remaining after filtering value 0.")
             
             # Save to CSV
-            df_filtered.to_csv(output_csv, index=False)
+            df_filtered.to_csv(output_csv, index=True)
             print(f"Filtered transactions saved to {output_csv}")
         else:
             print(f"No transactions found or an error occurred: {data['message']}")
