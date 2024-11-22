@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": 0, "label": "0x9fcafcca8aec0367abb35fbd161c241f7b79891b", "shape": "dot", "title": "Wallet: 0x9fcafcca8aec0367abb35fbd161c241f7b79891b"}, {"color": "#97c2fc", "id": 1, "label": "0xf9c8c57fe9eaabc5dfef8a8d03ef308f2a28c91c", "shape": "dot", "title": "Wallet: 0xf9c8c57fe9eaabc5dfef8a8d03ef308f2a28c91c"}, {"color": "#97c2fc", "id": 2, "label": "0x76914ca27f3c7422a14c22aaeafbbd05d3f3526b", "shape": "dot", "title": "Wallet: 0x76914ca27f3c7422a14c22aaeafbbd05d3f3526b"}, {"color": "#97c2fc", "id": 3, "label": "0x9c821d1eed859080c307e326fcc888c230d2bf86", "shape": "dot", "title": "Wallet: 0x9c821d1eed859080c307e326fcc888c230d2bf86"}, {"color": "#97c2fc", "id": 4, "label": "0xb39e9b7edf793611b615faa6e546ed68a23f7006", "shape": "dot", "title": "Wallet: 0xb39e9b7edf793611b615faa6e546ed68a23f7006"}, {"color": "#97c2fc", "id": 5, "label": "0x78971f0f20e7aac8adf286dba7d4487f96d36ab0", "shape": "dot", "title": "Wallet: 0x78971f0f20e7aac8adf286dba7d4487f96d36ab0"}, {"color": "#97c2fc", "id": 6, "label": "0x46ad4b0cddc9a74ae9e53d74e2cc73d1723daeb1", "shape": "dot", "title": "Wallet: 0x46ad4b0cddc9a74ae9e53d74e2cc73d1723daeb1"}, {"color": "#97c2fc", "id": 7, "label": "0x3969cec1f8ea2058d77cb3cc07dc6ebf89e86f01", "shape": "dot", "title": "Wallet: 0x3969cec1f8ea2058d77cb3cc07dc6ebf89e86f01"}, {"color": "#97c2fc", "id": 8, "label": "0x9c771633963218875db6e5ba22f2f7ba52ba1869", "shape": "dot", "title": "Wallet: 0x9c771633963218875db6e5ba22f2f7ba52ba1869"}, {"color": "#97c2fc", "id": 9, "label": "0x4ef757b0de4eddc3090246910bdf1beecd6e3d5a", "shape": "dot", "title": "Wallet: 0x4ef757b0de4eddc3090246910bdf1beecd6e3d5a"}, {"color": "#97c2fc", "id": 10, "label": "0x62689683499db2c9656d928bb166783223777755", "shape": "dot", "title": "Wallet: 0x62689683499db2c9656d928bb166783223777755"}, {"color": "#97c2fc", "id": 11, "label": "0xafe17f08655ccb47ddb9a751e86a1d59eef9baae", "shape": "dot", "title": "Wallet: 0xafe17f08655ccb47ddb9a751e86a1d59eef9baae"}, {"color": "#97c2fc", "id": 12, "label": "0x817e5796771efcbef00d0886826bc19ab621dcea", "shape": "dot", "title": "Wallet: 0x817e5796771efcbef00d0886826bc19ab621dcea"}, {"color": "#97c2fc", "id": 13, "label": "0xf161d6952a0f0dcc4e51ead5d3ad9f1bc0ec9684", "shape": "dot", "title": "Wallet: 0xf161d6952a0f0dcc4e51ead5d3ad9f1bc0ec9684"}, {"color": "#97c2fc", "id": 14, "label": "0x18439cc6a73d9f6238d8150deff518a8f8c4587e", "shape": "dot", "title": "Wallet: 0x18439cc6a73d9f6238d8150deff518a8f8c4587e"}, {"color": "#97c2fc", "id": 15, "label": "0xa1946b7ffaa4c03b8d3858840688588b092e3d8b", "shape": "dot", "title": "Wallet: 0xa1946b7ffaa4c03b8d3858840688588b092e3d8b"}, {"color": "#97c2fc", "id": 16, "label": "0x17fb2c662a577345a89abd725993c7daa0e3c28d", "shape": "dot", "title": "Wallet: 0x17fb2c662a577345a89abd725993c7daa0e3c28d"}, {"color": "#97c2fc", "id": 17, "label": "0xa8e1687b2548b2689122abff817f8c884673c752", "shape": "dot", "title": "Wallet: 0xa8e1687b2548b2689122abff817f8c884673c752"}, {"color": "#97c2fc", "id": 18, "label": "0x7fabf43ee683d700a5ffd74f78a88f4294a0db5e", "shape": "dot", "title": "Wallet: 0x7fabf43ee683d700a5ffd74f78a88f4294a0db5e"}, {"color": "#97c2fc", "id": 19, "label": "0x98405e33ad72aa52aeb7d2b09637961789743a77", "shape": "dot", "title": "Wallet: 0x98405e33ad72aa52aeb7d2b09637961789743a77"}, {"color": "#97c2fc", "id": 20, "label": "0x25c5b6250fa9f38a505c3f2bb772d0b0a889d618", "shape": "dot", "title": "Wallet: 0x25c5b6250fa9f38a505c3f2bb772d0b0a889d618"}, {"color": "#97c2fc", "id": 21, "label": "0xef7149290d68db4ae877c8fa32e89f99939eb2bd", "shape": "dot", "title": "Wallet: 0xef7149290d68db4ae877c8fa32e89f99939eb2bd"}, {"color": "#97c2fc", "id": 22, "label": "0x3ba02703b71f55aff1d796689612d56c0918c735", "shape": "dot", "title": "Wallet: 0x3ba02703b71f55aff1d796689612d56c0918c735"}, {"color": "#97c2fc", "id": 23, "label": "0x267b1ba1887f4c7650932622e163a5e1879e0a72", "shape": "dot", "title": "Wallet: 0x267b1ba1887f4c7650932622e163a5e1879e0a72"}, {"color": "#97c2fc", "id": 24, "label": "0x088fd53381d90a4d9524ce3ea00406c779357e28", "shape": "dot", "title": "Wallet: 0x088fd53381d90a4d9524ce3ea00406c779357e28"}, {"color": "#97c2fc", "id": 25, "label": "0x82d4cd6daa751ca1e9d816d47076efd7f5bfe06f", "shape": "dot", "title": "Wallet: 0x82d4cd6daa751ca1e9d816d47076efd7f5bfe06f"}, {"color": "#97c2fc", "id": 26, "label": "0x70305b080efc49eb5dfb9bda78aea516c398f804", "shape": "dot", "title": "Wallet: 0x70305b080efc49eb5dfb9bda78aea516c398f804"}, {"color": "#97c2fc", "id": 27, "label": "0x425e244db4de61348c5bd89245aa513e7ea4c009", "shape": "dot", "title": "Wallet: 0x425e244db4de61348c5bd89245aa513e7ea4c009"}, {"color": "#97c2fc", "id": 28, "label": "0x63d98ace2518806c21a2db40b2af62b3d7a12567", "shape": "dot", "title": "Wallet: 0x63d98ace2518806c21a2db40b2af62b3d7a12567"}, {"color": "#97c2fc", "id": 29, "label": "0xb84e224216fec19d8631a0ad187326bc48f91b6b", "shape": "dot", "title": "Wallet: 0xb84e224216fec19d8631a0ad187326bc48f91b6b"}, {"color": "#97c2fc", "id": 30, "label": "0xc0744398121ce2209e4d130671ae9910343b08ea", "shape": "dot", "title": "Wallet: 0xc0744398121ce2209e4d130671ae9910343b08ea"}, {"color": "#97c2fc", "id": 31, "label": "0x1266e24384701b094767d635a81a1001a3e54c36", "shape": "dot", "title": "Wallet: 0x1266e24384701b094767d635a81a1001a3e54c36"}, {"color": "#97c2fc", "id": 32, "label": "0xe03c23519e18d64f144d2800e30e81b0065c48b5", "shape": "dot", "title": "Wallet: 0xe03c23519e18d64f144d2800e30e81b0065c48b5"}, {"color": "#97c2fc", "id": 33, "label": "0x5f5affd524e4f0efffa61e25f85c05aff37de051", "shape": "dot", "title": "Wallet: 0x5f5affd524e4f0efffa61e25f85c05aff37de051"}, {"color": "#97c2fc", "id": 34, "label": "0x279f9f9b73bfdbe14e4912a6d5f7442ecdf97b37", "shape": "dot", "title": "Wallet: 0x279f9f9b73bfdbe14e4912a6d5f7442ecdf97b37"}, {"color": "#97c2fc", "id": 35, "label": "0x0681d8db095565fe8a346fa0277bffde9c0edbbf", "shape": "dot", "title": "Wallet: 0x0681d8db095565fe8a346fa0277bffde9c0edbbf"}, {"color": "#97c2fc", "id": 36, "label": "0xf50a4aa7a08515616d5ada0bebf6d494fc5b1218", "shape": "dot", "title": "Wallet: 0xf50a4aa7a08515616d5ada0bebf6d494fc5b1218"}, {"color": "#97c2fc", "id": 37, "label": "0xe31824c8e8889fa599354512be772f49eb58b225", "shape": "dot", "title": "Wallet: 0xe31824c8e8889fa599354512be772f49eb58b225"}, {"color": "#97c2fc", "id": 38, "label": "0xf03bfb08a807716e3340e175b98b388d2dc56de0", "shape": "dot", "title": "Wallet: 0xf03bfb08a807716e3340e175b98b388d2dc56de0"}, {"color": "#97c2fc", "id": 39, "label": "0xfc6fca507808d309392442e654b76efa4101419c", "shape": "dot", "title": "Wallet: 0xfc6fca507808d309392442e654b76efa4101419c"}, {"color": "#97c2fc", "id": 40, "label": "0x43f95535eea5cf06515249348f294dc99582d83b", "shape": "dot", "title": "Wallet: 0x43f95535eea5cf06515249348f294dc99582d83b"}, {"color": "#97c2fc", "id": 41, "label": "0xcb26d7fffa2ca6efe73f95ddae866463d9a4e962", "shape": "dot", "title": "Wallet: 0xcb26d7fffa2ca6efe73f95ddae866463d9a4e962"}, {"color": "#97c2fc", "id": 42, "label": "0x7be8076f4ea4a4ad08075c2508e481d6c946d12b", "shape": "dot", "title": "Wallet: 0x7be8076f4ea4a4ad08075c2508e481d6c946d12b"}, {"color": "#97c2fc", "id": 43, "label": "0xa6f93d3e16622f2d30fd849f39e98b4d3ac5ed04", "shape": "dot", "title": "Wallet: 0xa6f93d3e16622f2d30fd849f39e98b4d3ac5ed04"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": 0, "title": "TxHash: 0x2f499df1be8277d93344f340d065d888c69812fd952b8b8329d5f02c6800bff0\n Value: 1.9995\n Timestamp: 1523859520", "to": 1}, {"arrows": "to", "from": 1, "title": "TxHash: 0xce6769779b357e11cd28c4c480b7c5027694444ff592b957dd850571718eea7a\n Value: 0.0001\n Timestamp: 1519088481", "to": 2}, {"arrows": "to", "from": 1, "title": "TxHash: 0x75266a84674817dd7d36f03cfe56e881a57c4d0b010220db84a0a48c23b54fb9\n Value: 1e-18\n Timestamp: 1519088859", "to": 3}, {"arrows": "to", "from": 1, "title": "TxHash: 0xa283094451a0ff735d00b1cf77a1915a6e92817de0a1b0d63e2a93fcaa5f8282\n Value: 1e-05\n Timestamp: 1519428106", "to": 4}, {"arrows": "to", "from": 1, "title": "TxHash: 0x25452974bbdd458272db709f081d069ccdaaac03eca6b287d52a02900b2850cc\n Value: 0.0005\n Timestamp: 1519693275", "to": 5}, {"arrows": "to", "from": 1, "title": "TxHash: 0xa2424466e9123bdf18f15c6fd2384e90695a81461a1fea15ae86b384d105897b\n Value: 0.0004608\n Timestamp: 1519696273", "to": 6}, {"arrows": "to", "from": 1, "title": "TxHash: 0xf03ed53296e3a129b3dc32a75a198e05005ce344da04adbddc9e56e8f8821728\n Value: 0.002\n Timestamp: 1520578478", "to": 7}, {"arrows": "to", "from": 1, "title": "TxHash: 0xca52a959b2e1522f7e5539a8332eeb027ed971c04120371d2f077336c74bed55\n Value: 0.001\n Timestamp: 1520578045", "to": 8}, {"arrows": "to", "from": 1, "title": "TxHash: 0x89f94232c0496498ad52abee937047983a15d2e946b61975c34260360f2041aa\n Value: 0.0009\n Timestamp: 1520578055", "to": 9}, {"arrows": "to", "from": 1, "title": "TxHash: 0x7fa33617811c1943cad977c8ec16415fc962b71fd6055cf01174f8416ea6e405\n Value: 0.001\n Timestamp: 1520578106", "to": 10}, {"arrows": "to", "from": 1, "title": "TxHash: 0x0efab2c65e54ceb17183a19a5000af6f577839beacfaf46726c6fa6e2aca7b18\n Value: 0.001\n Timestamp: 1520578115", "to": 11}, {"arrows": "to", "from": 1, "title": "TxHash: 0xae6fe892641a8c56f9178098aacda11cbce373dfee1f4b91f6cda8f3bf121b20\n Value: 0.001\n Timestamp: 1520578128", "to": 12}, {"arrows": "to", "from": 1, "title": "TxHash: 0x96fde8530c421b4ade246fd68ed312cb9330390cb32678d0a2f0f1d911d52adf\n Value: 1e-08\n Timestamp: 1520658759", "to": 13}, {"arrows": "to", "from": 1, "title": "TxHash: 0x74979c9102b46ac0413f82fe406876304acb41735acc191cac557ac5d0b30def\n Value: 0.004\n Timestamp: 1520710767", "to": 14}, {"arrows": "to", "from": 1, "title": "TxHash: 0x48e306402ed7706a68d80101bc1313ab9b77a6e4ce25246f2c351ff5510978ec\n Value: 0.002\n Timestamp: 1520754720", "to": 15}, {"arrows": "to", "from": 1, "title": "TxHash: 0x6f78f12331452c5f935efc7e06249d5088f4c4c9867fd47de07604063fab6437\n Value: 0.001\n Timestamp: 1520754737", "to": 16}, {"arrows": "to", "from": 1, "title": "TxHash: 0x54c9c7b862bf6d9777431c9c9cbe7852169887b6d07eb27d22a6408d12b811b0\n Value: 0.001\n Timestamp: 1520754833", "to": 17}, {"arrows": "to", "from": 1, "title": "TxHash: 0x556e213bddada171bd82160d844249fac8296cdf5f8a1a4fbdef87ea153b9734\n Value: 0.002\n Timestamp: 1520754872", "to": 18}, {"arrows": "to", "from": 1, "title": "TxHash: 0xcdc5b319e222e30870f65b51c36697e62badba3d6d97a242e458e64f3f6e0ae8\n Value: 0.00045\n Timestamp: 1520758401", "to": 19}, {"arrows": "to", "from": 1, "title": "TxHash: 0x00fa0389c874c45389941a119904ae2fd79bedd4cb9db3c00b2b07609ea7cc82\n Value: 0.001\n Timestamp: 1520844550", "to": 20}, {"arrows": "to", "from": 1, "title": "TxHash: 0xc5d0f33d3b1fa9edecf17fffca5878b2002db9a6e49d96c8502d780c79748717\n Value: 0.001\n Timestamp: 1520844577", "to": 21}, {"arrows": "to", "from": 1, "title": "TxHash: 0x23a59e769b2bbeeebc68b18cd8259a4d3611f3b3ffe0b0921c03def6f7c536c8\n Value: 0.002\n Timestamp: 1520949664", "to": 22}, {"arrows": "to", "from": 1, "title": "TxHash: 0xadf1bb7ded9b02a342955e868ea9ea6f14ac4561bc8563e1f31eb30083ccedfa\n Value: 0.001\n Timestamp: 1521221003", "to": 23}, {"arrows": "to", "from": 1, "title": "TxHash: 0x264c11134b2e81091288db4a8f8808993e49490919f74ce0c8bb9ecdd1d738e0\n Value: 0.0005\n Timestamp: 1521910604", "to": 24}, {"arrows": "to", "from": 1, "title": "TxHash: 0xb4a55431dda3fa94d2ed435c1985a696c6c3eb10a3b22d727488d6c2a9511117\n Value: 0.0005\n Timestamp: 1522293277", "to": 25}, {"arrows": "to", "from": 1, "title": "TxHash: 0xdaec698ad817d7e79d9fad8adb0ee2c624041dbda036c579b3e1f39244a620e2\n Value: 0.005\n Timestamp: 1522651723", "to": 26}, {"arrows": "to", "from": 1, "title": "TxHash: 0x213a0fe9952ae62e2079ca69b81a05a97f7b5b7a47743515c8aa3079ec3ceb62\n Value: 0.001\n Timestamp: 1523119165", "to": 27}, {"arrows": "to", "from": 1, "title": "TxHash: 0xa5b55fbe5582e863551cb7466eeeed55f455da0e3115d4f038e949728b106902\n Value: 0.005\n Timestamp: 1528800480", "to": 28}, {"arrows": "to", "from": 1, "title": "TxHash: 0x2541b21e81d22f1c38b58fc5ac58eadbb0cf8b7e5e2dcdf4ba359a4e76b391a1\n Value: 2.0\n Timestamp: 1524075799", "to": 29}, {"arrows": "to", "from": 1, "title": "TxHash: 0x03b24713221c18b3e63a0aa15ab916eeebc438d0a3dc7af5496e739e8dbc0829\n Value: 0.05\n Timestamp: 1524381836", "to": 30}, {"arrows": "to", "from": 1, "title": "TxHash: 0xcf2dbca3ef951fe74f7826d28675af979cecc76288adde5dd73e6a981bf78a82\n Value: 0.001\n Timestamp: 1524511904", "to": 31}, {"arrows": "to", "from": 1, "title": "TxHash: 0x636953a79386a9bbe2895d1390304c06f5dbe6592683deb7eecec2bcc6b53369\n Value: 0.06\n Timestamp: 1550359292", "to": 32}, {"arrows": "to", "from": 1, "title": "TxHash: 0x281f4ad2df608a6c0219ba7782559a635d702f2470691c58f90adc6d6f1c1066\n Value: 0.0189\n Timestamp: 1526498532", "to": 33}, {"arrows": "to", "from": 1, "title": "TxHash: 0x3384bc9b6f8e4293fd2e47b131acee37d05b99cee6aa43b211cf917b4634c153\n Value: 0.00284\n Timestamp: 1526019605", "to": 34}, {"arrows": "to", "from": 1, "title": "TxHash: 0xe82e0afbfc3fba7fc802127e224801de7e9b0ea7549bafe0747125f9b168acea\n Value: 0.02\n Timestamp: 1527610217", "to": 35}, {"arrows": "to", "from": 1, "title": "TxHash: 0xa6855b15294a02860304b15e13dc30cb4fdd0400ff02456b4117c3440217179a\n Value: 0.5\n Timestamp: 1526286480", "to": 36}, {"arrows": "to", "from": 1, "title": "TxHash: 0x231c07e1ab0cd7b28831a87b5b3b7b5e22ce0b821d20cb2a2d54a5d1c7050bd8\n Value: 0.03\n Timestamp: 1526568491", "to": 37}, {"arrows": "to", "from": 1, "title": "TxHash: 0x79d8ec6e3ec3bc1b9d9c9263588831aeeb1dd470580924fd226a036c818ee266\n Value: 0.008\n Timestamp: 1526937033", "to": 38}, {"arrows": "to", "from": 1, "title": "TxHash: 0x11695ac103287bc12d958031e9b950e4dd766beb83316880e5c54791be882e40\n Value: 0.003\n Timestamp: 1553454712", "to": 39}, {"arrows": "to", "from": 1, "title": "TxHash: 0x886751276fd2afc022eb0900b220e8884a91ce512db55c61ed272e9209eba1e5\n Value: 0.0327036827\n Timestamp: 1541600916", "to": 40}, {"arrows": "to", "from": 1, "title": "TxHash: 0xbb7c4158d6fc2ccce30f9924b3e2e8152b88fd09176837ba157c3ba3161bac4f\n Value: 0.0087536218315149\n Timestamp: 1548214429", "to": 41}, {"arrows": "to", "from": 1, "title": "TxHash: 0x0cff8b66d9187a64bf0d345b3ee74f2702169ed6082c39a79c051dab0c90aa63\n Value: 0.01\n Timestamp: 1550359492", "to": 42}, {"arrows": "to", "from": 1, "title": "TxHash: 0xa945ceeb81740decb00d353fb3d1db07076415ef616c4b79e2e1a3900ea85c78\n Value: 0.005070615352026\n Timestamp: 1554811413", "to": 43}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

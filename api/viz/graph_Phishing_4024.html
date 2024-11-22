@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": 0, "label": "0xa0bcee922944af4f062cc91ee46b6133649f599f", "shape": "dot", "title": "Wallet: 0xa0bcee922944af4f062cc91ee46b6133649f599f"}, {"color": "#97c2fc", "id": 1, "label": "0x05e18136f048d648ee73dd5d269d590ff2873c33", "shape": "dot", "title": "Wallet: 0x05e18136f048d648ee73dd5d269d590ff2873c33"}, {"color": "#97c2fc", "id": 2, "label": "0x54d71f5432efd92d2ccc51020810bb33897fb418", "shape": "dot", "title": "Wallet: 0x54d71f5432efd92d2ccc51020810bb33897fb418"}, {"color": "#97c2fc", "id": 3, "label": "0x3c3cdb34ada3442b243f143cadd70c0e7e487362", "shape": "dot", "title": "Wallet: 0x3c3cdb34ada3442b243f143cadd70c0e7e487362"}, {"color": "#97c2fc", "id": 4, "label": "0x488d775b14cca62555436d1710c2f403c0061f83", "shape": "dot", "title": "Wallet: 0x488d775b14cca62555436d1710c2f403c0061f83"}, {"color": "#97c2fc", "id": 5, "label": "0x97836b9cbe79634b042113d584a97ba9f326eefc", "shape": "dot", "title": "Wallet: 0x97836b9cbe79634b042113d584a97ba9f326eefc"}, {"color": "#97c2fc", "id": 6, "label": "0xf4ee5f40f53663c12d1d5138837df20d251e8ded", "shape": "dot", "title": "Wallet: 0xf4ee5f40f53663c12d1d5138837df20d251e8ded"}, {"color": "#97c2fc", "id": 7, "label": "0x9a0e19fda5ce47721536790523bf8c57d7fe3af1", "shape": "dot", "title": "Wallet: 0x9a0e19fda5ce47721536790523bf8c57d7fe3af1"}, {"color": "#97c2fc", "id": 8, "label": "0x3da2acecba3e1ab7264ae0075f0fefbd93e2b413", "shape": "dot", "title": "Wallet: 0x3da2acecba3e1ab7264ae0075f0fefbd93e2b413"}, {"color": "#97c2fc", "id": 9, "label": "0x2ad7d1e1987068f0e6cdd499009929fb3373c643", "shape": "dot", "title": "Wallet: 0x2ad7d1e1987068f0e6cdd499009929fb3373c643"}, {"color": "#97c2fc", "id": 10, "label": "0x7de5e9bf592b23b57f2970733617b858ff4bf26b", "shape": "dot", "title": "Wallet: 0x7de5e9bf592b23b57f2970733617b858ff4bf26b"}, {"color": "#97c2fc", "id": 11, "label": "0x0abe37dbd2c69423b62304fd9f4af7120474d378", "shape": "dot", "title": "Wallet: 0x0abe37dbd2c69423b62304fd9f4af7120474d378"}, {"color": "#97c2fc", "id": 12, "label": "0xfd3c1f5381e8a772fe6d4ded33d9080db8bcdd89", "shape": "dot", "title": "Wallet: 0xfd3c1f5381e8a772fe6d4ded33d9080db8bcdd89"}, {"color": "#97c2fc", "id": 13, "label": "0x720ebcb76344fff238b844b9d6750f0941318685", "shape": "dot", "title": "Wallet: 0x720ebcb76344fff238b844b9d6750f0941318685"}, {"color": "#97c2fc", "id": 14, "label": "0xd19abcfe8066bf81aa017792722af1ba0cf72ce4", "shape": "dot", "title": "Wallet: 0xd19abcfe8066bf81aa017792722af1ba0cf72ce4"}, {"color": "#97c2fc", "id": 15, "label": "0x92e620d48b5d380bae814ede27c37c91becae934", "shape": "dot", "title": "Wallet: 0x92e620d48b5d380bae814ede27c37c91becae934"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": 0, "title": "TxHash: 0x10cdd641d6d69a2e7c14136c0d5fa6c5b1b9a31425086cf47e568f2f480f4d13\n Value: 4.000581598\n Timestamp: 1524991638", "to": 1}, {"arrows": "to", "from": 1, "title": "TxHash: 0x3987d9da4850e5c35ba77d689564d0af18b025f42fb618daf418a44fc08e5888\n Value: 0.4\n Timestamp: 1525014522", "to": 2}, {"arrows": "to", "from": 1, "title": "TxHash: 0xe4488bd00d7ac3470e9a1ae545074f8500bf42091f7ec9ef612494890553fd9a\n Value: 0.6862837509914349\n Timestamp: 1525036309", "to": 3}, {"arrows": "to", "from": 1, "title": "TxHash: 0x049934d91820f30e8ca04987e4be0dc5912b950240c9ae3e34cccba998311924\n Value: 6.5\n Timestamp: 1525051793", "to": 4}, {"arrows": "to", "from": 1, "title": "TxHash: 0xca31f31e41c221b4b3b84179f7792b24ab46b16c8bdf5a64301e09a145aed109\n Value: 0.8\n Timestamp: 1525069887", "to": 5}, {"arrows": "to", "from": 1, "title": "TxHash: 0x05230cc1e70f3f9a6e7764a30ca0f8910078d7cfe6742cf5183bc5d0f7f37e4f\n Value: 0.120082028\n Timestamp: 1525094897", "to": 6}, {"arrows": "to", "from": 1, "title": "TxHash: 0x7a6d690a67317c4c68d61f77fc31ee1abcb197a06249ebee7ca4a9d6f6aed0b7\n Value: 0.12085242\n Timestamp: 1525184021", "to": 7}, {"arrows": "to", "from": 1, "title": "TxHash: 0x00016d190d6c705a04bfadb03b07874aa64901395b56e94d603ef1b8d599540e\n Value: 1.7\n Timestamp: 1525289925", "to": 8}, {"arrows": "to", "from": 1, "title": "TxHash: 0xbf988834df7e418e49427b42f59b8354b11c6abe53c513753d718f092ef3f808\n Value: 0.42\n Timestamp: 1525297324", "to": 9}, {"arrows": "to", "from": 1, "title": "TxHash: 0x451e94d5a03f28a0ecffe29c52403dde9cb206ab6e48322f86829a094bcdafc2\n Value: 19.26629628\n Timestamp: 1525299964", "to": 10}, {"arrows": "to", "from": 1, "title": "TxHash: 0x206e10f36400da74cb1d2c082666199deb123360fd64628bfda4005f49bc1a60\n Value: 0.15\n Timestamp: 1525310575", "to": 11}, {"arrows": "to", "from": 1, "title": "TxHash: 0x1fedf62f8c086fd5ce939d6c82938acee0e77a16a3db9ea715a70e96f9701ac8\n Value: 3.5\n Timestamp: 1525345921", "to": 12}, {"arrows": "to", "from": 1, "title": "TxHash: 0x6801d3c01abc0f4fc28a10f461b45ce147bf0e561f252e2efc4dfba2c9a8f681\n Value: 0.4\n Timestamp: 1525362906", "to": 13}, {"arrows": "to", "from": 1, "title": "TxHash: 0xc0a87c5d79d5071bbb19dfaf91ccfdbef010c30e3a0b7cc13e4476c6efbd7c23\n Value: 2.5\n Timestamp: 1525389652", "to": 14}, {"arrows": "to", "from": 1, "title": "TxHash: 0xaa6b7f5e0d43968d26e4db477498cf51f7174d724598c1eceb25a22465e81783\n Value: 40.663235076991434\n Timestamp: 1525450502", "to": 15}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
