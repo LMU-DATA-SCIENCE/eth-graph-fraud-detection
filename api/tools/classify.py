@@ -34,7 +34,7 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
         None: If an error occurs.
     """
     # Define paths
-    models_dir = "models"
+    models_dir = "api/models"
     model_path = os.path.join(models_dir, model_name)
 
     # Load the pre-trained model

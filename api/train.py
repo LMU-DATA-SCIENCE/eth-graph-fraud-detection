@@ -33,8 +33,8 @@ warnings.simplefilter("ignore", NotOpenSSLWarning)
 def load_graphs(order):
     """Load graphs based on their order (first-order or second-order)."""
     file_map = {
-        "first": "data/graphs/graphs.pickle",
-        "second": "data/graphs/second_graphs.pickle",
+        "first": "api/data/graphs/graphs.pickle",
+        "second": "api/data/graphs/second_graphs.pickle",
     }
     file_path = file_map.get(order)
     with open(file_path, "rb") as f:
@@ -80,19 +80,14 @@ def train_and_evaluate(order, embedding_model, classifier_name):
         "Recall": recall_score(y_test, y_pred),
     }
 
-    # Save the trained model (only from training data)
-    model_filename = f"models/{order}_{embedding_model}_{classifier_name}.joblib"
-    os.makedirs("models", exist_ok=True)
-    pickle.dump(clf, open(model_filename, "wb"))
-
     print(f"Evaluation completed for {order}_{embedding_model}_{classifier_name}")
 
     # Retrain the model on the full dataset (entire graph data)
     clf.fit(embeddings, labels)
     
-    # Save the retrained model under the 'model/' directory
-    retrained_model_filename = f"model/{order}_{embedding_model}_{classifier_name}_retrained.joblib"
-    os.makedirs("model", exist_ok=True)
+    # Save the retrained model under the 'models/' directory
+    retrained_model_filename = f"api/models/{order}_{embedding_model}_{classifier_name}.joblib"
+    os.makedirs("api/models", exist_ok=True)
     pickle.dump(clf, open(retrained_model_filename, "wb"))
 
     print(f"Retrained model saved to {retrained_model_filename}")
@@ -139,7 +134,7 @@ def visualize_results(metrics_df):
 
     # Save and show the plot
     os.makedirs("viz", exist_ok=True)
-    plot_filename = "viz/evaluation_results_subplots_2cols.png"
+    plot_filename = "api/viz/evaluation_results_subplots_2cols.png"
     plt.savefig(plot_filename)
     plt.show()
     print(f"Plot saved to {plot_filename}")
@@ -152,7 +147,7 @@ def main():
     classifiers = ["SVM", "RF"]
 
     # Create output directory
-    os.makedirs("results", exist_ok=True)
+    os.makedirs("api/results", exist_ok=True)
 
     # Prepare hyperparameter combinations
     combinations = [(order, embedding, classifier) for order in orders for embedding in embeddings for classifier in classifiers]
@@ -168,12 +163,12 @@ def main():
 
     # Save evaluation table
     metrics_df = pd.DataFrame(metrics_list)
-    metrics_df.to_csv("results/evaluation_table.csv", index=False)
+    metrics_df.to_csv("api/results/evaluation_table.csv", index=False)
 
     # Visualize the results
     visualize_results(metrics_df)
 
-    print("All models trained and evaluated. Results saved to 'results/evaluation_table.csv'.")
+    print("All models trained and evaluated. Results saved to 'api/results/evaluation_table.csv'.")
 
 
 if __name__ == "__main__":
