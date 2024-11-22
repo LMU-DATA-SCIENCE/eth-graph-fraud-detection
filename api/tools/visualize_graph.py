@@ -26,7 +26,7 @@ def visualize_graph_pyvis(graph_data):
     """
     graph, label = graph_data  # graph_data is (graph, label)
     net = Network(notebook=False, height="800px", width="100%", directed=True)
-    
+
     # Add nodes and edges to the PyVis graph
     for node, attrs in graph.nodes(data=True):
         # Use the wallet address (if available) as the node label
@@ -45,8 +45,23 @@ def visualize_graph_pyvis(graph_data):
         # Add edge to the graph
         net.add_edge(source, target, title=edge_title)
 
-    # Generate the HTML for the graph
-    return net.generate_html()
+    # Get the generated HTML
+    graph_html = net.generate_html()
+
+    # # Inject the necessary libraries in the <head> section of the HTML
+    # head_content = """
+    # <head>
+    #     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/9.1.2/vis-network.min.js"></script>
+    #     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/9.1.2/vis-network.min.css" />
+    #     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.4.0/js/tom-select.complete.min.js"></script>
+    #     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.4.0/css/tom-select.min.css" />
+    # </head>
+    # """
+
+    # # Append the head content before the body content
+    # graph_html = graph_html.replace("<head></head>", head_content)
+
+    return graph_html
 
 def main():
     """Main function to visualize a random graph when run from the command line."""

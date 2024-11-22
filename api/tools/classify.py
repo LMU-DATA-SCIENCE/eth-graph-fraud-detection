@@ -20,17 +20,36 @@ def load_model(model_path: str):
         raise FileNotFoundError(f"Model file not found: {model_path}")
     with open(model_path, "rb") as f:
         return pickle.load(f)
+    
+from datetime import datetime, timezone
 
-def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, str], None]:
+def format_timestamp(timestamp):
+    try:
+        # Convert to integer if possible and create a timezone-aware datetime object
+        if isinstance(timestamp, (int, float, str)) and str(timestamp).isdigit():
+            return datetime.fromtimestamp(int(timestamp), tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        # If it's already a string, return as-is
+        return str(timestamp)
+    except Exception as e:
+        print(f"Error in format_timestamp: {e}")
+        return "N/A"  # Fallback for invalid timestamps
+
+
+from typing import Union, Tuple, Dict
+import os
+import numpy as np
+from sklearn.pipeline import Pipeline
+
+def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, Dict[str, list]], None]:
     """
-    Classify a wallet as fraudulent or not and return the fraud probability and graph visualization.
+    Classify a wallet as fraudulent or not and return the fraud probability and graph data.
     
     Args:
         wallet_address (str): The wallet address to classify.
         model_name (str): The name of the pre-trained model to use (e.g., "first_Graph2Vec_RF.joblib").
     
     Returns:
-        Tuple[float, str]: The predicted fraud probability (0 to 1) and HTML of the graph visualization.
+        Tuple[float, dict]: The predicted fraud probability (0 to 1) and graph data in JSON format.
         None: If an error occurs.
     """
     # Define paths
@@ -71,12 +90,21 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
     except Exception as e:
         print(f"Error during prediction: {e}")
         return None
-    
-    # Visualize the graph and generate the HTML
+
+    # Convert the graph to a JSON structure
     try:
-        graph_html = visualize_graph_pyvis((graph, round(probability)))
+        nodes = [{"id": str(node), "label": graph.nodes[node].get("address", f"Node {node}")}
+                 for node in graph.nodes]
+        edges = [{"source": str(source), 
+                  "target": str(target), 
+                  "value": edge_data.get("Value", 0), 
+                  "timestamp": format_timestamp(edge_data.get("TimeStamp", "N/A"))}
+                 for source, target, edge_data in graph.edges(data=True)]
+
+        graph_data = {"nodes": nodes, "edges": edges}
+
     except Exception as e:
-        print(f"Error visualizing graph: {e}")
+        print(f"Error converting graph to JSON: {e}")
         return None
 
-    return probability, graph_html
+    return probability, graph_data

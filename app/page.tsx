@@ -1,14 +1,22 @@
-"use client";  // Add this line at the top of the file
+"use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import * as d3 from "d3";
 
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
   const [classificationResult, setClassificationResult] = useState<{
     fraud_probability: number;
-    visualization_html: string;
+    graph: {
+      nodes: Array<{ id: string; label: string }>;
+      edges: Array<{
+        source: string;
+        target: string;
+        value: number;
+        timestamp: string;
+      }>;
+    };
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,6 +26,7 @@ export default function Home() {
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
+        model_name: "first_Graph2Vec_RF.joblib", // Or pass a dynamic model name
       });
       setClassificationResult(response.data);
     } catch (err) {
@@ -25,6 +34,101 @@ export default function Home() {
       setError("Failed to classify the wallet. Please try again.");
     }
   };
+
+  // D3 visualization logic
+  useEffect(() => {
+    if (!classificationResult) return;
+
+    const svg = d3.select("#graph");
+    const width = 800;
+    const height = 600;
+
+    // Clear existing graph
+    svg.selectAll("*").remove();
+
+    // Create simulation
+    const simulation = d3
+      .forceSimulation(classificationResult.graph.nodes)
+      .force("link", d3.forceLink(classificationResult.graph.edges).id((d: any) => d.id).distance(100))
+      .force("charge", d3.forceManyBody().strength(-200))
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+    // Add links (edges)
+    const link = svg
+      .append("g")
+      .selectAll("line")
+      .data(classificationResult.graph.edges)
+      .enter()
+      .append("line")
+      .attr("stroke", "#999")
+      .attr("stroke-width", 2);
+
+    // Add link labels
+    const linkLabels = svg
+      .append("g")
+      .selectAll("text")
+      .data(classificationResult.graph.edges)
+      .enter()
+      .append("text")
+      .attr("font-size", "10px")
+      .attr("fill", "#555")
+      .text((d) => `Value: ${d.value}, Timestamp: ${d.timestamp}`);
+
+    // Add nodes
+    const node = svg
+      .append("g")
+      .selectAll("circle")
+      .data(classificationResult.graph.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", 10)
+      .attr("fill", "#69b3a2")
+      .call(
+        d3.drag()
+          .on("start", (event, d: any) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on("drag", (event, d: any) => {
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on("end", (event, d: any) => {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+          })
+      );
+
+    // Add node labels
+    const nodeLabels = svg
+      .append("g")
+      .selectAll("text")
+      .data(classificationResult.graph.nodes)
+      .enter()
+      .append("text")
+      .attr("font-size", "12px")
+      .attr("dy", -15)
+      .attr("text-anchor", "middle")
+      .text((d) => d.label);
+
+    // Simulation tick
+    simulation.on("tick", () => {
+      link
+        .attr("x1", (d) => (d.source as any).x)
+        .attr("y1", (d) => (d.source as any).y)
+        .attr("x2", (d) => (d.target as any).x)
+        .attr("y2", (d) => (d.target as any).y);
+
+      linkLabels
+        .attr("x", (d) => ((d.source as any).x + (d.target as any).x) / 2)
+        .attr("y", (d) => ((d.source as any).y + (d.target as any).y) / 2);
+
+      node.attr("cx", (d) => d.x as number).attr("cy", (d) => d.y as number);
+      nodeLabels.attr("x", (d) => d.x as number).attr("y", (d) => d.y as number);
+    });
+  }, [classificationResult]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -61,21 +165,11 @@ export default function Home() {
             <p className="mb-4">
               <strong>Fraud Probability:</strong> {classificationResult.fraud_probability.toFixed(2)}
             </p>
-            <div dangerouslySetInnerHTML={{ __html: classificationResult.visualization_html }} />
           </div>
         )}
       </div>
 
-      <div className="relative flex place-items-center">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <svg id="graph" width="800" height="600" />
     </main>
   );
 }
