@@ -11,7 +11,7 @@ API_URL = "https://api.etherscan.io/api"
 API_KEY = os.getenv("ETHERSCAN_API_KEY")  # Load API key from environment variable
 
 # Function to fetch transactions for a wallet address
-def fetch_transactions(wallet_address, output_csv="transactions.csv", start_block=0, end_block=99999999):
+def fetch_transactions(wallet_address, start_block=0, end_block=99999999):
     """
     Fetch all transactions for a given wallet address and save as CSV, filtering out transactions with value 0.
 
@@ -20,6 +20,14 @@ def fetch_transactions(wallet_address, output_csv="transactions.csv", start_bloc
     :param start_block: The starting block number (default is 0).
     :param end_block: The ending block number (default is 99999999).
     """
+
+    # Specify the directory to save the output CSV file
+    output_directory = "data/eth_transactions/etherscan/"
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Set output CSV path
+    output_csv = os.path.join(output_directory, f"{wallet_address}.csv")
+
     params = {
         "module": "account",
         "action": "txlist",
@@ -59,20 +67,17 @@ def fetch_transactions(wallet_address, output_csv="transactions.csv", start_bloc
             # Save to CSV
             df_filtered.to_csv(output_csv, index=True)
             print(f"Filtered transactions saved to {output_csv}")
+
+            return df_filtered
         else:
             print(f"No transactions found or an error occurred: {data['message']}")
     else:
         print(f"Error: Unable to fetch data (HTTP {response.status_code})")
+    return None
 
 # Example usage
 if __name__ == "__main__":
     # Replace with your Ethereum wallet address
     wallet_address = "0x00a2df284ba5f6428a39dff082ba7ff281852e06"
-    output_directory = "data/eth_transactions/etherscan/"
-    os.makedirs(output_directory, exist_ok=True)
-
-    # Set output CSV path
-    output_csv = os.path.join(output_directory, f"{wallet_address}.csv")
     
-    # Fetch transactions
-    fetch_transactions(wallet_address, output_csv)
+    fetch_transactions(wallet_address)

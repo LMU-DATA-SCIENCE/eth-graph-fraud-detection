@@ -16,6 +16,7 @@ from tqdm import tqdm
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tools.get_graph_embeddings import get_graph_embeddings
 
 # Suppress urllib3 warnings
 warnings.filterwarnings(
@@ -45,25 +46,10 @@ def load_graphs(order):
     return graphs, labels
 
 
-def get_embeddings(embedding_model, graphs):
-    """Generate graph embeddings using the specified model."""
-    if embedding_model == "Feather-G":
-        model = FeatherGraph()
-    elif embedding_model == "GL2Vec":
-        model = GL2Vec()
-    elif embedding_model == "Graph2Vec":
-        model = Graph2Vec()
-    else:
-        raise ValueError("Unsupported embedding model.")
-
-    model.fit(graphs)
-    return model.get_embedding()
-
-
 def train_and_evaluate(order, embedding_model, classifier_name):
     """Train and evaluate a model with the specified parameters."""
     graphs, labels = load_graphs(order)
-    embeddings = get_embeddings(embedding_model, graphs)
+    embeddings = get_graph_embeddings(embedding_model, graphs)
 
     # Split dataset into train and test
     X_train, X_test, y_train, y_test = train_test_split(embeddings, labels, test_size=0.3, random_state=42)
@@ -141,7 +127,7 @@ def visualize_results(metrics_df):
         metric_data = metrics_df_melted[metrics_df_melted["Metric"] == metric]
         
         # Create a barplot
-        sns.barplot(data=metric_data, x="Classifier", y="Value", hue="Embedding", ax=ax, ci=None)
+        sns.barplot(data=metric_data, x="Classifier", y="Value", hue="Embedding", ax=ax, errorbar=None)
 
         # Set title and labels
         ax.set_title(f"{metric} by Hyperparameter Configuration")
