@@ -26,7 +26,7 @@ export default function Home() {
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
-        model_name: "first_Graph2Vec_RF.joblib", // Or pass a dynamic model name
+        model_name: "first_Graph2Vec_RF.joblib",
       });
       setClassificationResult(response.data);
     } catch (err) {
@@ -35,7 +35,6 @@ export default function Home() {
     }
   };
 
-  // D3 visualization logic
   useEffect(() => {
     if (!classificationResult) return;
 
@@ -43,27 +42,26 @@ export default function Home() {
     const width = 800;
     const height = 600;
 
-    // Clear existing graph
     svg.selectAll("*").remove();
 
-    // Create simulation
     const simulation = d3
       .forceSimulation(classificationResult.graph.nodes)
       .force("link", d3.forceLink(classificationResult.graph.edges).id((d: any) => d.id).distance(100))
       .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Add links (edges)
     const link = svg
       .append("g")
       .selectAll("line")
       .data(classificationResult.graph.edges)
       .enter()
       .append("line")
-      .attr("stroke", "#999")
+      .attr("stroke", "#555")
+      .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2);
 
-    // Add link labels
+
+          // Add link labels
     const linkLabels = svg
       .append("g")
       .selectAll("text")
@@ -74,7 +72,6 @@ export default function Home() {
       .attr("fill", "#555")
       .text((d) => `Value: ${d.value}, Timestamp: ${d.timestamp}`);
 
-    // Add nodes
     const node = svg
       .append("g")
       .selectAll("circle")
@@ -82,7 +79,9 @@ export default function Home() {
       .enter()
       .append("circle")
       .attr("r", 10)
-      .attr("fill", "#69b3a2")
+      .attr("fill", "#4caf50")
+      .attr("stroke", "#1b5e20")
+      .attr("stroke-width", 1.5)
       .call(
         d3.drag()
           .on("start", (event, d: any) => {
@@ -101,7 +100,6 @@ export default function Home() {
           })
       );
 
-    // Add node labels
     const nodeLabels = svg
       .append("g")
       .selectAll("text")
@@ -109,17 +107,18 @@ export default function Home() {
       .enter()
       .append("text")
       .attr("font-size", "12px")
-      .attr("dy", -15)
+      .attr("fill", "#cfd8dc")
       .attr("text-anchor", "middle")
+      .attr("dy", -15)
       .text((d) => d.label);
 
-    // Simulation tick
     simulation.on("tick", () => {
       link
         .attr("x1", (d) => (d.source as any).x)
         .attr("y1", (d) => (d.source as any).y)
         .attr("x2", (d) => (d.target as any).x)
         .attr("y2", (d) => (d.target as any).y);
+
 
       linkLabels
         .attr("x", (d) => ((d.source as any).x + (d.target as any).x) / 2)
@@ -131,45 +130,49 @@ export default function Home() {
   }, [classificationResult]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="text-center mb-6">
+    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+      {/* Header */}
+      <header className="w-full py-4 bg-gray-800 shadow-md text-center">
+        <h1 className="text-2xl font-bold">Ethereum Fraud Checker</h1>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-grow flex flex-col items-center justify-center px-4 space-y-6">
+        {/* Instruction */}
+        <p className="text-center text-gray-300 text-lg">
           Enter a wallet address below to classify its fraud probability and view the graph visualization.
         </p>
 
-        <div className="mb-8">
+        {/* Search Bar */}
+        <div className="flex items-center space-x-4">
           <input
             type="text"
             value={walletAddress}
             onChange={(e) => setWalletAddress(e.target.value)}
             placeholder="Enter wallet address"
-            className="border border-gray-300 p-2 rounded-lg w-80"
+            className="w-80 p-3 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <button
             onClick={classifyWallet}
-            className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+            className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
-            Classify
+            Check Wallet
           </button>
         </div>
 
-        {error && (
-          <div className="text-red-500 mb-4">
-            <strong>Error:</strong> {error}
-          </div>
-        )}
-
+        {/* Fraud Probability */}
         {classificationResult && (
-          <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-4">Classification Result</h2>
-            <p className="mb-4">
-              <strong>Fraud Probability:</strong> {classificationResult.fraud_probability.toFixed(2)}
-            </p>
-          </div>
+          <p className="text-xl font-semibold text-green-400">
+            Fraud Probability: {classificationResult.fraud_probability.toFixed(2)*100}%
+          </p>
         )}
-      </div>
 
-      <svg id="graph" width="800" height="600" />
-    </main>
+        {/* Error Message */}
+        {error && <p className="text-red-500">{error}</p>}
+
+        {/* Graph Visualization */}
+        <svg id="graph" className="mt-8" width="800" height="600" />
+      </main>
+    </div>
   );
 }
