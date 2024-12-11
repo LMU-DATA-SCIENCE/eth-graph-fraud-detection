@@ -17,6 +17,7 @@ import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tools.get_graph_embeddings import get_graph_embeddings
+from sklearn.model_selection import GridSearchCV
 
 # Suppress urllib3 warnings
 warnings.filterwarnings(
@@ -47,26 +48,54 @@ def load_graphs(order):
 
 
 def train_and_evaluate(order, embedding_model, classifier_name):
-    """Train and evaluate a model with the specified parameters."""
+    """Train and evaluate a model with hyperparameter tuning."""
     graphs, labels = load_graphs(order)
     embeddings = get_graph_embeddings(embedding_model, graphs)
 
     # Split dataset into train and test
     X_train, X_test, y_train, y_test = train_test_split(embeddings, labels, test_size=0.3, random_state=42)
 
-    # Choose classifier
+    # Define classifier and hyperparameter grid
     if classifier_name == "SVM":
-        clf = make_pipeline(StandardScaler(), SGDClassifier())
+        pipeline = make_pipeline(StandardScaler(), SGDClassifier(random_state=42))
+        param_grid = {
+            "sgdclassifier__alpha": [1e-4, 1e-3, 1e-2],
+            "sgdclassifier__penalty": ["l2", "elasticnet"],
+            "sgdclassifier__max_iter": [1000, 2000],
+        }
     elif classifier_name == "RF":
-        clf = make_pipeline(StandardScaler(), RandomForestClassifier())
+        pipeline = make_pipeline(StandardScaler(), RandomForestClassifier(random_state=42))
+        param_grid = {
+            "randomforestclassifier__n_estimators": [100, 200, 300],
+            "randomforestclassifier__max_depth": [None, 10, 20],
+            "randomforestclassifier__min_samples_split": [2, 5],
+        }
     elif classifier_name == "MLP":
-        clf = MLPClassifier()
+        pipeline = make_pipeline(StandardScaler(), MLPClassifier(random_state=42))
+        param_grid = {
+            "mlpclassifier__hidden_layer_sizes": [(100,), (50, 50), (100, 50)],
+            "mlpclassifier__activation": ["relu", "tanh"],
+            "mlpclassifier__alpha": [1e-4, 1e-3],
+        }
     else:
         raise ValueError("Unsupported classifier.")
 
-    # Train on training data and predict
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
+    # Perform grid search
+    grid_search = GridSearchCV(
+        estimator=pipeline,
+        param_grid=param_grid,
+        scoring="f1",  # Use F1 score for model selection
+        cv=5,  # 5-fold cross-validation
+        n_jobs=-1,  # Use all available cores
+        verbose=1,
+    )
+    grid_search.fit(X_train, y_train)
+
+    # Best model
+    best_model = grid_search.best_estimator_
+
+    # Predict on test data
+    y_pred = best_model.predict(X_test)
 
     # Evaluate model
     metrics = {
@@ -78,17 +107,18 @@ def train_and_evaluate(order, embedding_model, classifier_name):
         "F1": f1_score(y_test, y_pred),
         "Precision": precision_score(y_test, y_pred),
         "Recall": recall_score(y_test, y_pred),
+        "Best Params": grid_search.best_params_,
     }
 
     print(f"Evaluation completed for {order}_{embedding_model}_{classifier_name}")
 
     # Retrain the model on the full dataset (entire graph data)
-    clf.fit(embeddings, labels)
-    
+    best_model.fit(embeddings, labels)
+
     # Save the retrained model under the 'models/' directory
     retrained_model_filename = f"api/models/{order}_{embedding_model}_{classifier_name}.joblib"
     os.makedirs("api/models", exist_ok=True)
-    pickle.dump(clf, open(retrained_model_filename, "wb"))
+    pickle.dump(best_model, open(retrained_model_filename, "wb"))
 
     print(f"Retrained model saved to {retrained_model_filename}")
 
