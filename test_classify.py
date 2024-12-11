@@ -6,10 +6,10 @@ if __name__ == "__main__":
 
     result = classify_wallet(wallet_address, model_name)
     if result:
-        probability, graph_html = result
+        probability, graph_dict = result
         print(f"Fraud Probability: {probability}")
         # Save the HTML for visualization
-        with open("graph_visualization.html", "w") as f:
-            f.write(graph_html)
+        # with open("graph_visualization.html", "w") as f:
+        #     f.write(graph_html)
     else:
         print("Classification failed.")

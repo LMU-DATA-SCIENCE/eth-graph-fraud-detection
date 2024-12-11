@@ -16,7 +16,7 @@ from tqdm import tqdm
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
-from tools.get_graph_embeddings import get_graph_embeddings
+from api.tools.get_graph_embeddings import get_graph_embeddings
 from sklearn.model_selection import GridSearchCV
 
 # Suppress urllib3 warnings
