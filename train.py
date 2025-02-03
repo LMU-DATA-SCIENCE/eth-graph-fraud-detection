@@ -2,7 +2,7 @@ import pickle
 import networkx as nx
 from karateclub import Graph2Vec, FeatherGraph, GL2Vec
 from sklearn.metrics import f1_score, recall_score, precision_score
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
@@ -76,6 +76,14 @@ def train_and_evaluate(order, embedding_model, classifier_name):
             "mlpclassifier__hidden_layer_sizes": [(100,), (50, 50), (100, 50)],
             "mlpclassifier__activation": ["relu", "tanh"],
             "mlpclassifier__alpha": [1e-4, 1e-3],
+        }
+    elif classifier_name == "GB":
+        pipeline = make_pipeline(StandardScaler(), GradientBoostingClassifier(random_state=42))
+        param_grid = {
+            "gradientboostingclassifier__n_estimators": [100],
+            "gradientboostingclassifier__learning_rate": [0.001, 0.01, 0.1],
+            "gradientboostingclassifier__max_depth": [3,5,10],
+            "gradientboostingclassifier__subsample": [0.5, 0.8, 1.0],
         }
     else:
         raise ValueError("Unsupported classifier.")
@@ -174,7 +182,7 @@ def main():
     # Define hyperparameter grid
     orders = ["first"]
     embeddings = ["Feather-G", "Graph2Vec"]
-    classifiers = ["SVM", "RF"]
+    classifiers = ["GB","SVM", "RF"]#,"MLP", 
 
     # Create output directory
     os.makedirs("api/results", exist_ok=True)
