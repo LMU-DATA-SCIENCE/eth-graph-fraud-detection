@@ -182,7 +182,7 @@ def main():
     # Define hyperparameter grid
     orders = ["first"]
     embeddings = ["Feather-G", "Graph2Vec"]
-    classifiers = ["GB","SVM", "RF"]#,"MLP", 
+    classifiers = ["GB","SVM", "RF","MLP"]#, 
 
     # Create output directory
     os.makedirs("api/results", exist_ok=True)
