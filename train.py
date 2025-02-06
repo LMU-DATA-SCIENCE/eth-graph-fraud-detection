@@ -143,11 +143,11 @@ def visualize_results(metrics_df):
 
     # Set up the figure with subplots in 2 columns
     n_metrics = len(metrics)
-    n_cols = 2
-    n_rows = (n_metrics + 1) // n_cols  # Calculate rows needed for 2 columns
+    n_cols = 1
+    n_rows = n_metrics  # Calculate rows needed for 2 columns
 
     # Create subplots
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(12, 3 * n_rows))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(8, 2 * n_rows))
     
     # Flatten axes for easy iteration, in case it's a 2D array
     axes = axes.flatten()
@@ -163,10 +163,13 @@ def visualize_results(metrics_df):
         sns.barplot(data=metric_data, x="Classifier", y="Value", hue="Embedding", ax=ax, errorbar=None)
 
         # Set title and labels
-        ax.set_title(f"{metric} by Hyperparameter Configuration")
+        ax.set_title(metric)
         ax.set_xlabel("Classifier")
-        ax.set_ylabel("Value")
-    
+        ax.set_ylabel(metric)
+        
+        # Make the legend smaller
+        ax.legend(loc='lower right', fontsize='small')
+
     # Adjust layout for better spacing
     plt.tight_layout()
 
@@ -176,7 +179,6 @@ def visualize_results(metrics_df):
     plt.savefig(plot_filename)
     plt.show()
     print(f"Plot saved to {plot_filename}")
-
 
 def main():
     # Define hyperparameter grid

@@ -77,6 +77,8 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
     # Generate graph embeddings
     try:
         embedding = get_graph_embeddings(embedding_model, [graph])[0]
+        print(embedding.shape)
+        print(embedding)
     except Exception as e:
         print(f"Error generating embeddings: {e}")
         return None
@@ -87,6 +89,7 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
         if isinstance(model, Pipeline):
             embedding = np.array(embedding).reshape(1, -1)  # Reshape if using a pipeline
         probability = model.predict_proba(embedding)[0][1]  # Probability of the positive class (fraudulent)
+        print("Probability:", probability)
     except Exception as e:
         print(f"Error during prediction: {e}")
         return None

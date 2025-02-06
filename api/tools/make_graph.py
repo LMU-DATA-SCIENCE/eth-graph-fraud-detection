@@ -31,7 +31,7 @@ def process_transactions_to_graph(df, label=None):
         timestamp = int(row['TimeStamp'])
 
         # Debugging output for each transaction
-        # print(f"From: {from_wallet}, To: {to_wallet}, TxHash: {tx_hash}, Value: {value}, Timestamp: {timestamp}")
+        print(f"From: {from_wallet}, To: {to_wallet}, TxHash: {tx_hash}, Value: {value}, Timestamp: {timestamp}")
 
         # Add from_wallet as a node with an attribute
         if from_wallet not in node_list:
