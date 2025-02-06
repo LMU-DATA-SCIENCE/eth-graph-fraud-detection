@@ -35,6 +35,10 @@ export default function Home() {
     }
   };
 
+  const isValidEthereumAddress = (address: string) => {
+    return /^0x[a-fA-F0-9]{40}$/.test(address);
+  };
+
   useEffect(() => {
     if (!classificationResult) return;
 
@@ -60,8 +64,6 @@ export default function Home() {
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2);
 
-
-          // Add link labels
     const linkLabels = svg
       .append("g")
       .selectAll("text")
@@ -119,7 +121,6 @@ export default function Home() {
         .attr("x2", (d) => (d.target as any).x)
         .attr("y2", (d) => (d.target as any).y);
 
-
       linkLabels
         .attr("x", (d) => ((d.source as any).x + (d.target as any).x) / 2)
         .attr("y", (d) => ((d.source as any).y + (d.target as any).y) / 2);
@@ -130,49 +131,44 @@ export default function Home() {
   }, [classificationResult]);
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center">
-      {/* Header */}
+    <div className="bg-gray-900 text-white min-h-screen flex flex-col">
       <header className="w-full py-4 bg-gray-800 shadow-md text-center">
         <h1 className="text-2xl font-bold">Ethereum Fraud Checker</h1>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 space-y-6">
-        {/* Instruction */}
-        <p className="text-center text-gray-300 text-lg">
-          Enter a wallet address below to classify its fraud probability and view the graph visualization.
-        </p>
-
-        {/* Search Bar */}
-        <div className="flex items-center space-x-4">
-          <input
-            type="text"
-            value={walletAddress}
-            onChange={(e) => setWalletAddress(e.target.value)}
-            placeholder="Enter wallet address"
-            className="w-80 p-3 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <button
-            onClick={classifyWallet}
-            className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
-          >
-            Check Wallet
-          </button>
-        </div>
-
-        {/* Fraud Probability */}
+      <main className="flex-grow flex flex-col items-center justify-start px-4 space-y-6">
         {classificationResult && (
-          <p className="text-xl font-semibold text-green-400">
-            Fraud Probability: {classificationResult.fraud_probability.toFixed(2)*100}%
+          <p className="text-xl font-semibold text-green-400 mt-6">
+            Fraud Probability: {(classificationResult.fraud_probability * 100).toFixed(2)}%
           </p>
         )}
-
-        {/* Error Message */}
-        {error && <p className="text-red-500">{error}</p>}
-
-        {/* Graph Visualization */}
         <svg id="graph" className="mt-8" width="800" height="600" />
       </main>
+
+      <footer className="w-full py-6 bg-gray-800 shadow-md text-center">
+        <div className="flex flex-col items-center space-y-4 w-full max-w-4xl mx-auto px-4">
+          <div className="flex items-center space-x-4 w-full max-w-4xl justify-center">
+            <input
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="Enter wallet address"
+              className="w-[calc(42ch)] py-3 px-4 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+            <button
+              onClick={classifyWallet}
+              disabled={!walletAddress || !isValidEthereumAddress(walletAddress)}
+              className="w-[calc(13ch)] py-3 px-4 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-500 disabled:cursor-not-allowed"
+            >
+              Check Wallet
+            </button>
+          </div>
+          <p className="text-center text-gray-300 text-sm w-full max-w-4xl">
+            Enter a wallet address to classify its fraud probability and view the transaction graph.
+          </p>
+          {error && <p className="text-red-500">{error}</p>}
+        </div>
+      </footer>
     </div>
   );
 }

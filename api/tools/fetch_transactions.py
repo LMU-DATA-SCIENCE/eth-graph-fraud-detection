@@ -22,7 +22,7 @@ def fetch_transactions(wallet_address, start_block=0, end_block=99999999):
     """
 
     # Specify the directory to save the output CSV file
-    output_directory = "data/eth_transactions/etherscan/"
+    output_directory = "api/data/eth_transactions/etherscan/"
     os.makedirs(output_directory, exist_ok=True)
 
     # Set output CSV path
