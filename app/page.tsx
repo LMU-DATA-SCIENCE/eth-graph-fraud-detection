@@ -4,18 +4,28 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as d3 from "d3";
 
+// Define a custom node type that extends D3's SimulationNodeDatum interface.
+interface NodeDatum extends d3.SimulationNodeDatum {
+  id: string;
+  label: string;
+}
+
+// Define the edge type. Note that 'source' and 'target' start as strings and will be
+// replaced by NodeDatum objects after the simulation is initialized.
+interface EdgeDatum {
+  source: string | NodeDatum;
+  target: string | NodeDatum;
+  value: number;
+  timestamp: string;
+}
+
 export default function Home() {
   const [walletAddress, setWalletAddress] = useState("");
   const [classificationResult, setClassificationResult] = useState<{
     fraud_probability: number;
     graph: {
-      nodes: Array<{ id: string; label: string }>;
-      edges: Array<{
-        source: string;
-        target: string;
-        value: number;
-        timestamp: string;
-      }>;
+      nodes: NodeDatum[];
+      edges: EdgeDatum[];
     };
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +58,19 @@ export default function Home() {
 
     svg.selectAll("*").remove();
 
+    // Initialize the simulation with our custom node type.
     const simulation = d3
-      .forceSimulation(classificationResult.graph.nodes)
-      .force("link", d3.forceLink(classificationResult.graph.edges).id((d: any) => d.id).distance(100))
+      .forceSimulation<NodeDatum>(classificationResult.graph.nodes)
+      .force(
+        "link",
+        // Note: the generic parameters here are:
+        // - First: NodeDatum (the type for nodes)
+        // - Second: EdgeDatum (the type for links)
+        d3
+          .forceLink<NodeDatum, EdgeDatum>(classificationResult.graph.edges)
+          .id((d: NodeDatum) => d.id)
+          .distance(100)
+      )
       .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -85,17 +105,18 @@ export default function Home() {
       .attr("stroke", "#1b5e20")
       .attr("stroke-width", 1.5)
       .call(
-        d3.drag()
-          .on("start", (event, d: any) => {
+        d3
+          .drag<SVGCircleElement, NodeDatum>()
+          .on("start", (event, d) => {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = event.x;
             d.fy = event.y;
           })
-          .on("drag", (event, d: any) => {
+          .on("drag", (event, d) => {
             d.fx = event.x;
             d.fy = event.y;
           })
-          .on("end", (event, d: any) => {
+          .on("end", (event, d) => {
             if (!event.active) simulation.alphaTarget(0);
             d.fx = null;
             d.fy = null;
@@ -116,17 +137,30 @@ export default function Home() {
 
     simulation.on("tick", () => {
       link
-        .attr("x1", (d) => (d.source as any).x)
-        .attr("y1", (d) => (d.source as any).y)
-        .attr("x2", (d) => (d.target as any).x)
-        .attr("y2", (d) => (d.target as any).y);
+        .attr("x1", (d) => ((d.source as unknown) as NodeDatum).x!)
+        .attr("y1", (d) => ((d.source as unknown) as NodeDatum).y!)
+        .attr("x2", (d) => ((d.target as unknown) as NodeDatum).x!)
+        .attr("y2", (d) => ((d.target as unknown) as NodeDatum).y!);
 
       linkLabels
-        .attr("x", (d) => ((d.source as any).x + (d.target as any).x) / 2)
-        .attr("y", (d) => ((d.source as any).y + (d.target as any).y) / 2);
+        .attr("x", (d) =>
+          ((((d.source as unknown) as NodeDatum).x! +
+            ((d.target as unknown) as NodeDatum).x!) /
+            2)
+        )
+        .attr("y", (d) =>
+          ((((d.source as unknown) as NodeDatum).y! +
+            ((d.target as unknown) as NodeDatum).y!) /
+            2)
+        );
 
-      node.attr("cx", (d) => d.x as number).attr("cy", (d) => d.y as number);
-      nodeLabels.attr("x", (d) => d.x as number).attr("y", (d) => d.y as number);
+      node
+        .attr("cx", (d) => d.x as number)
+        .attr("cy", (d) => d.y as number);
+
+      nodeLabels
+        .attr("x", (d) => d.x as number)
+        .attr("y", (d) => d.y as number);
     });
   }, [classificationResult]);
 
@@ -139,7 +173,8 @@ export default function Home() {
       <main className="flex-grow flex flex-col items-center justify-start px-4 space-y-6">
         {classificationResult && (
           <p className="text-xl font-semibold text-green-400 mt-6">
-            Fraud Probability: {(classificationResult.fraud_probability * 100).toFixed(2)}%
+            Fraud Probability:{" "}
+            {(classificationResult.fraud_probability * 100).toFixed(2)}%
           </p>
         )}
         <svg id="graph" className="mt-8" width="800" height="600" />
@@ -164,7 +199,8 @@ export default function Home() {
             </button>
           </div>
           <p className="text-center text-gray-300 text-sm w-full max-w-4xl">
-            Enter a wallet address to classify its fraud probability and view the transaction graph.
+            Enter a wallet address to classify its fraud probability and view the
+            transaction graph.
           </p>
           {error && <p className="text-red-500">{error}</p>}
         </div>
