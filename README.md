@@ -29,7 +29,6 @@ The datasets are available in [[here]](http://xblock.pro/tx/).
 
 ### How to train and perform inference
 
-# README
 
 ```
 $ python train.py # Train and evaluate models
