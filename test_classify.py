@@ -1,15 +1,21 @@
+import argparse
 from api.tools.classify import classify_wallet
 
-if __name__ == "__main__":
-    wallet_address = "0x2d69692d54f9df37d9a2a509b148ed10fcf6d766"
-    model_name = "first_Graph2Vec_RF.joblib"
-
-    result = classify_wallet(wallet_address, model_name)
+def main():
+    parser = argparse.ArgumentParser(description="Classify a wallet address using a specified model.")
+    parser.add_argument("--wallet_address", type=str, required=True, help="The wallet address to classify.")
+    parser.add_argument("--embedding", type=str, required=True, help="The embedding method to use (e.g., Feather-G).")
+    parser.add_argument("--model", type=str, required=True, help="The model name to use (e.g., GB).")
+    
+    args = parser.parse_args()
+    model_name = f"first_{args.embedding}_{args.model}.joblib"
+    
+    result = classify_wallet(args.wallet_address, model_name)
     if result:
         probability, graph_dict = result
         print(f"Fraud Probability: {probability}")
-        # Save the HTML for visualization
-        # with open("graph_visualization.html", "w") as f:
-        #     f.write(graph_html)
     else:
         print("Classification failed.")
+
+if __name__ == "__main__":
+    main()
