@@ -1,8 +1,8 @@
 from api.tools.classify import classify_wallet
 
 if __name__ == "__main__":
-    wallet_address = "0x2d69692d54f9df37d9a2a509b148ed10fcf6d766"
-    model_name = "first_Graph2Vec_RF.joblib"
+    wallet_address = "0xa83c4a6d0418074655bdbe74fed8435c46c19f66"
+    model_name = "first_Feather-G_RF.joblib"
 
     result = classify_wallet(wallet_address, model_name)
     if result:
