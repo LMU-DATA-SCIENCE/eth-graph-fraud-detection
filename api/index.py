@@ -26,7 +26,7 @@ class ClassificationResponse(BaseModel):
 
 class ClassifyRequest(BaseModel):
     wallet_address: str
-    model_name: str = "first_Graph2Vec_RF.joblib"  # Default value for model_name
+    model_name: str = "first_Feather-G_RF.joblib"  # Default value for model_name
 
 # Define classify_wallet endpoint
 @app.post("/api/py/classify", response_model=ClassificationResponse)
@@ -42,16 +42,19 @@ def classify_wallet_endpoint(request: ClassifyRequest):
     """
     try:
         # Call the classify_wallet function
+        print()
         fraud_probability, graph_data = classify_wallet(request.wallet_address, request.model_name)
 
         if fraud_probability is None or graph_data is None:
             raise ValueError("Classification failed. Please check the wallet address or model.")
 
         # Structure and return the response
-        return {
+        response = {
             "fraud_probability": fraud_probability,
             "graph": graph_data
         }
+        print(response)
+        return response
     except Exception as e:
         # Handle errors gracefully
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

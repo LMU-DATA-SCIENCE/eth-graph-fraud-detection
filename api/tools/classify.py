@@ -46,7 +46,7 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
     
     Args:
         wallet_address (str): The wallet address to classify.
-        model_name (str): The name of the pre-trained model to use (e.g., "first_Graph2Vec_RF.joblib").
+        model_name (str): The name of the pre-trained model to use (e.g., "first_Feather-G_RF.joblib").
     
     Returns:
         Tuple[float, dict]: The predicted fraud probability (0 to 1) and graph data in JSON format.
@@ -72,7 +72,7 @@ def classify_wallet(wallet_address: str, model_name: str) -> Union[Tuple[float, 
         return None
 
     # Determine the embedding model from the model name
-    embedding_model = model_name.split("_")[1]  # Extract embedding model (e.g., "Graph2Vec")
+    embedding_model = model_name.split("_")[1]  # Extract embedding model (e.g., "Feather-G")
 
     # Generate graph embeddings
     try:
