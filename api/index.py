@@ -26,7 +26,7 @@ class ClassificationResponse(BaseModel):
 
 class ClassifyRequest(BaseModel):
     wallet_address: str
-    model_name: str = "first_Feather-G_RF.joblib"  # Default value for model_name
+    model_name: str = "first_Feather-G_GB.joblib"  # Default value for model_name
 
 # Define classify_wallet endpoint
 @app.post("/api/py/classify", response_model=ClassificationResponse)

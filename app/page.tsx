@@ -36,7 +36,7 @@ export default function Home() {
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
-        model_name: "first_Feather-G_RF.joblib",
+        model_name: "first_Feather-G_GB.joblib",
       });
       setClassificationResult(response.data);
     } catch (err) {

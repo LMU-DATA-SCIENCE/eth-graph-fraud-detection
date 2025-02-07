@@ -11,6 +11,7 @@ def main():
     model_name = f"first_{args.embedding}_{args.model}.joblib"
     
     result = classify_wallet(args.wallet_address, model_name)
+
     if result:
         probability, graph_dict = result
         print(f"Fraud Probability: {probability}")
