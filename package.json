@@ -2,6 +2,9 @@
   "name": "nextjs-fastapi",
   "version": "0.2.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "fastapi-dev": "pip3 install -r requirements.txt && python3 -m uvicorn api.index:app --reload",
     "next-dev": "next dev",
