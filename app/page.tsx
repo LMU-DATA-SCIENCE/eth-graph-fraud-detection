@@ -26,16 +26,19 @@ export default function Home() {
     };
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isGraphVisible, setIsGraphVisible] = useState(false); // New state for controlling graph visibility
 
   const classifyWallet = async () => {
     setError(null);
     setClassificationResult(null);
+    setIsGraphVisible(false); // Hide the graph before fetching data
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
         model_name: "first_Feather-G_RF.joblib",
       });
       setClassificationResult(response.data);
+      setIsGraphVisible(true); // Show the graph once data is fetched successfully
     } catch (err) {
       console.error("Error classifying wallet:", err);
       setError("Failed to classify the wallet. Please try again.");
@@ -47,7 +50,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!classificationResult) return;
+    if (!classificationResult || !isGraphVisible) return; // Only render graph when isGraphVisible is true
 
     const svg = d3.select("#graph");
     const width = 800;
@@ -151,7 +154,7 @@ export default function Home() {
 
       nodeLabels.attr("x", (d) => d.x as number).attr("y", (d) => d.y as number);
     });
-  }, [classificationResult]);
+  }, [classificationResult, isGraphVisible]);
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col">
@@ -190,13 +193,15 @@ export default function Home() {
             {(classificationResult.fraud_probability * 100).toFixed(2)}%
           </p>
         )}
-        <svg
-          id="graph"
-          className="mt-8 w-full"
-          height="600"
-          viewBox="0 0 800 600"
-          preserveAspectRatio="xMidYMid meet"
-        />
+        {isGraphVisible && ( // Only show the graph when isGraphVisible is true
+          <svg
+            id="graph"
+            className="mt-8 w-full"
+            height="600"
+            viewBox="0 0 800 600"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        )}
       </main>
 
       <footer className="w-full py-6 bg-gray-800 shadow-md text-center">
