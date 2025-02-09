@@ -4,14 +4,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as d3 from "d3";
 
-// Define a custom node type that extends D3's SimulationNodeDatum interface.
 interface NodeDatum extends d3.SimulationNodeDatum {
   id: string;
   label: string;
 }
 
-// Define the edge type. Note that 'source' and 'target' start as strings and will be
-// replaced by NodeDatum objects after the simulation is initialized.
 interface EdgeDatum {
   source: string | NodeDatum;
   target: string | NodeDatum;
@@ -36,7 +33,7 @@ export default function Home() {
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
-        model_name: "first_Feather-G_GB.joblib",
+        model_name: "first_Feather-G_RF.joblib",
       });
       setClassificationResult(response.data);
     } catch (err) {
@@ -58,14 +55,10 @@ export default function Home() {
 
     svg.selectAll("*").remove();
 
-    // Initialize the simulation with our custom node type.
     const simulation = d3
       .forceSimulation<NodeDatum>(classificationResult.graph.nodes)
       .force(
         "link",
-        // Note: the generic parameters here are:
-        // - First: NodeDatum (the type for nodes)
-        // - Second: EdgeDatum (the type for links)
         d3
           .forceLink<NodeDatum, EdgeDatum>(classificationResult.graph.edges)
           .id((d: NodeDatum) => d.id)
@@ -154,20 +147,40 @@ export default function Home() {
             2)
         );
 
-      node
-        .attr("cx", (d) => d.x as number)
-        .attr("cy", (d) => d.y as number);
+      node.attr("cx", (d) => d.x as number).attr("cy", (d) => d.y as number);
 
-      nodeLabels
-        .attr("x", (d) => d.x as number)
-        .attr("y", (d) => d.y as number);
+      nodeLabels.attr("x", (d) => d.x as number).attr("y", (d) => d.y as number);
     });
   }, [classificationResult]);
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col">
-      <header className="w-full py-4 bg-gray-800 shadow-md text-center">
-        <h1 className="text-2xl font-bold">Ethereum Fraud Checker</h1>
+      <header className="w-full py-4 px-6 bg-gray-800 shadow-md relative flex justify-between items-center">
+        {/* Left section: logo and EthXpose title */}
+        <div className="flex items-start space-x-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 417"
+            className="w-10 h-10"
+          >
+            <path fill="#343434" d="M127.6 0L127.6 279.4 0 208.3z" />
+            <path fill="#8C8C8C" d="M127.6 0L256 208.3 127.6 279.4z" />
+            <path fill="#3C3C3B" d="M127.6 320.5L127.6 417 0 261.2z" />
+            <path fill="#8C8C8C" d="M127.6 417L256 261.2 127.6 320.5z" />
+            <path fill="#141414" d="M127.6 279.4L0 208.3 127.6 160.8z" />
+            <path fill="#393939" d="M127.6 160.8L256 208.3 127.6 279.4z" />
+          </svg>
+          <div>
+            <h1 className="text-3xl font-bold">EthXpose</h1>
+            <p className="text-xs text-gray-400">Detect Fraudulent Ethereum wallets</p>
+          </div>
+        </div>
+        {/* Center section */}
+        <div className="absolute left-1/2 top-0 transform -translate-x-1/2 flex items-center h-full">
+          <h2 className="text-3xl font-bold">
+            Ethereum Wallet Fraud Detection
+          </h2>
+        </div>
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-start px-4 space-y-6">
@@ -177,7 +190,13 @@ export default function Home() {
             {(classificationResult.fraud_probability * 100).toFixed(2)}%
           </p>
         )}
-        <svg id="graph" className="mt-8" width="800" height="600" />
+        <svg
+          id="graph"
+          className="mt-8 w-full"
+          height="600"
+          viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
+        />
       </main>
 
       <footer className="w-full py-6 bg-gray-800 shadow-md text-center">
