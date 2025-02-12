@@ -7,12 +7,6 @@ import * as d3 from "d3";
 interface NodeDatum extends d3.SimulationNodeDatum {
   id: string;
   label: string;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  fx?: number | null;
-  fy?: number | null;
 }
 
 interface EdgeDatum {
@@ -32,19 +26,16 @@ export default function Home() {
     };
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isGraphVisible, setIsGraphVisible] = useState(false);
 
   const classifyWallet = async () => {
     setError(null);
     setClassificationResult(null);
-    setIsGraphVisible(false);
     try {
       const response = await axios.post("/api/py/classify", {
         wallet_address: walletAddress,
         model_name: "first_Feather-G_RF.joblib",
       });
       setClassificationResult(response.data);
-      setIsGraphVisible(true);
     } catch (err) {
       console.error("Error classifying wallet:", err);
       setError("Failed to classify the wallet. Please try again.");
@@ -56,7 +47,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!classificationResult || !isGraphVisible) return;
+    if (!classificationResult) return;
 
     const svg = d3.select("#graph");
     const width = 800;
@@ -64,16 +55,8 @@ export default function Home() {
 
     svg.selectAll("*").remove();
 
-    const nodesWithSimulationData = classificationResult.graph.nodes.map(node => ({
-      ...node,
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: 0,
-      vy: 0,
-    }));
-
     const simulation = d3
-      .forceSimulation<NodeDatum>(nodesWithSimulationData)
+      .forceSimulation<NodeDatum>(classificationResult.graph.nodes)
       .force(
         "link",
         d3
@@ -107,7 +90,7 @@ export default function Home() {
     const node = svg
       .append("g")
       .selectAll("circle")
-      .data(nodesWithSimulationData)
+      .data(classificationResult.graph.nodes)
       .enter()
       .append("circle")
       .attr("r", 10)
@@ -136,7 +119,7 @@ export default function Home() {
     const nodeLabels = svg
       .append("g")
       .selectAll("text")
-      .data(nodesWithSimulationData)
+      .data(classificationResult.graph.nodes)
       .enter()
       .append("text")
       .attr("font-size", "12px")
@@ -168,11 +151,12 @@ export default function Home() {
 
       nodeLabels.attr("x", (d) => d.x as number).attr("y", (d) => d.y as number);
     });
-  }, [classificationResult, isGraphVisible]);
+  }, [classificationResult]);
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col">
       <header className="w-full py-4 px-6 bg-gray-800 shadow-md relative flex justify-between items-center">
+        {/* Left section: logo and EthXpose title */}
         <div className="flex items-start space-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -191,6 +175,7 @@ export default function Home() {
             <p className="text-xs text-gray-400">Detect Fraudulent Ethereum wallets</p>
           </div>
         </div>
+        {/* Center section */}
         <div className="absolute left-1/2 top-0 transform -translate-x-1/2 flex items-center h-full">
           <h2 className="text-3xl font-bold">
             Ethereum Wallet Fraud Detection
@@ -205,15 +190,13 @@ export default function Home() {
             {(classificationResult.fraud_probability * 100).toFixed(2)}%
           </p>
         )}
-        {isGraphVisible && (
-          <svg
-            id="graph"
-            className="mt-8 w-full"
-            height="600"
-            viewBox="0 0 800 600"
-            preserveAspectRatio="xMidYMid meet"
-          />
-        )}
+        <svg
+          id="graph"
+          className="mt-8 w-full"
+          height="600"
+          viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
+        />
       </main>
 
       <footer className="w-full py-6 bg-gray-800 shadow-md text-center">
