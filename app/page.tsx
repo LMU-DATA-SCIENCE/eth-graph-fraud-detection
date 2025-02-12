@@ -7,6 +7,12 @@ import * as d3 from "d3";
 interface NodeDatum extends d3.SimulationNodeDatum {
   id: string;
   label: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  fx?: number | null;
+  fy?: number | null;
 }
 
 interface EdgeDatum {
