@@ -4,7 +4,6 @@ from api.tools.make_graph import process_transactions_to_graph  # Import your gr
 from api.tools.fetch_transactions import fetch_transactions  # Import your transaction fetching function
 from api.tools.get_graph_embeddings import get_graph_embeddings
 from api.tools.visualize_graph import visualize_graph_pyvis  # Import the visualization function
-from karateclub import FeatherGraph, Graph2Vec, GL2Vec  # Import embedding models
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 import numpy as np

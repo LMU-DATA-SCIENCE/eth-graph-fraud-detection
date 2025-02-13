@@ -1,7 +1,6 @@
 
 import pickle
-import networkx as nx
-from karateclub import Graph2Vec, FeatherGraph, GL2Vec
+from api.tools.get_graph_embeddings import *
 from sklearn.metrics import f1_score, recall_score, precision_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
@@ -63,20 +62,6 @@ def order_graph(order):
 
             return graphs, y
 
-def select_embedding(emb, graphs):
-    if emb == "Feather-G": #Feather-G for Graph Embedding
-        model = FeatherGraph()
-    elif emb == "GL2Vec":
-        model = GL2Vec() #GL2Vec for Graph Embedding
-    elif emb == "Graph2Vec":
-        model = Graph2Vec() #Graph2Vec for Graph Embedding
-
-    model.fit(graphs)
-
-    # Get graph embedding vectors
-    X = model.get_embedding()
-
-    return X
 
 def classify(classifier, X, y, emb):
     # Split dataset into train and test

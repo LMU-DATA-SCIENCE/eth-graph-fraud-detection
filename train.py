@@ -1,6 +1,5 @@
 import pickle
 import networkx as nx
-from karateclub import Graph2Vec, FeatherGraph, GL2Vec
 from sklearn.metrics import f1_score, recall_score, precision_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import SGDClassifier
@@ -16,7 +15,7 @@ from tqdm import tqdm
 import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
-from api.tools.get_graph_embeddings import get_graph_embeddings
+from api.tools.get_graph_embeddings import *
 from sklearn.model_selection import GridSearchCV
 
 # Suppress urllib3 warnings

@@ -3,7 +3,7 @@ import numpy as np
 import networkx as nx
 import scipy.sparse as sparse
 from functools import partial
-from karateclub.estimator import Estimator
+from api.tools.estimator import Estimator
 
 class DirectedFeatherGraph(Estimator):
     r"""A modified version of Feather‑G for directed, weighted graphs.
